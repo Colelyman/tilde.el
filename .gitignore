@@ -1,5 +1,8 @@
 auto-save-list
 elpa
 projectile-bookmarks.eld
-tree-fort.el
+tramp
+smex-items
+.local/
+persp-confs
 .DS_Store
