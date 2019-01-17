@@ -1,0 +1,3 @@
+[submodule "org-bullets"]
+	path = org-bullets
+	url = https://github.com/sabof/org-bullets.git
