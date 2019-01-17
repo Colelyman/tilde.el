@@ -1,14 +1,17 @@
+
+;;; Code:
+
 ;; Minimal UI
 (scroll-bar-mode -1)
 (tool-bar-mode   -1)
-(menu-bar-mode    t) ; I like the menu bar?
+(menu-bar-mode   -1) ; I like the menu bar?
 (tooltip-mode    -1)
 (add-hook 'prog-mode-hook 'linum-mode)
 
 ;; Basic stuff to make writing code better
 (electric-indent-mode        +1) ; Indent new lines like the previous
 (electric-pair-mode           1) ; Matching delimiters
-(global-visual-line-mode      1) ; Wrap lines
+(auto-fill-mode               1) ; Wrap lines
 (global-prettify-symbols-mode 1) ; Pretty symbols
 
 ; Show Matching Parens
@@ -21,7 +24,7 @@
 
 ;; Blank Scratch
 (setq inhibit-startup-message t
-    initial-scratch-message nil)
+      initial-scratch-message nil)
 
 ;; Vim Mode
 (use-package evil
@@ -34,58 +37,80 @@
     :config (evil-escape-mode 1))
 
 ;; Theme
-(use-package dracula-theme
-   :ensure t
-   :config
-   (load-theme 'dracula t))
+(use-package doom-themes
+  :ensure t
+  :config
+  (load-theme 'doom-one t))
+;; doom-modeline
+(use-package doom-modeline
+  :ensure t
+  :hook (after-init . doom-modeline-init))
 
-;; Helm
-(use-package helm
-    :ensure t
-    :init
-    (setq helm-M-x-fuzzy-match t
-        helm-mode-fuzzy-match t
-        helm-buffers-fuzzy-matching t
-        helm-recentf-fuzzy-match t
-        helm-locate-fuzzy-match t
-        helm-semantic-fuzzy-match t
-        helm-imenu-fuzzy-match t
-        helm-completion-in-region-fuzzy-match t
-        helm-candidate-number-list 150
-        helm-split-window-in-side-p t
-        helm-move-to-line-cycle-in-source t
-        helm-echo-input-in-header-line t
-        helm-autoresize-max-height 0
-        helm-autoresize-min-height 20)
-    :config (helm-mode 1))
+;; Counsel, ivy, and swiper
+(use-package counsel
+  :ensure t
+  :init
+  (ivy-mode 1)
+  (setq ivy-use-virtual-buffers t
+	enable-recursive-minibuffers t
+	ivy-initial-inputs-alist nil
+	ivy-height 20))
+
+;; Smex
+(use-package smex
+  :ensure t
+  :defer t)
 
 ;; Which Key
 (use-package which-key
-    :ensure t
-    :init
-    (setq which-key-separator " ")
-    (setq which-key-prefix-prefix "+")
-    :config (which-key-mode 1))
+  :ensure t
+  :init
+  (setq which-key-separator " "
+	which-key-prefix-prefix "+")
+  :config (which-key-mode 1))
 
 ;; Custom Key Bindings
 (use-package general
-    :ensure t
-    :config (general-define-key
-        :states '(normal visual insert emacs)
-        :prefix "SPC"
-        :non-normal-prefix "M-SPC"
-        "TAB" '(switch-to-prev-buffer :which-key "previous buffer")
-        "SPC" '(helm-M-x :which-key "M-x")
-        "pf"  '(helm-find-files :which-key "find files")
-        "bb"  '(helm-buffers-list :which-key "buffers list")
-        "wl"  '(windmove-right :which-key "move right")
-        "wh"  '(windmove-left :which-key "move left")
-        "wk"  '(windmove-up :which-key "move up")
-        "wj"  '(windmove-down :which-key "move bottom")
-        "w/"  '(split-window-right :which-key "split right")
-        "w-"  '(split-window-below :which-key "split bottom")
-        "wx"  '(delete-window :which-key "delete window")
-        "at"  '(ansi-term :which-key "open terminal")))
+  :ensure t
+  :config (general-define-key
+	   :states '(normal visual insert emacs)
+	   :prefix "SPC"
+	   :non-normal-prefix "M-SPC"
+	   "SPC" '(counsel-M-x :which-key "M-x")
+	   ":"   '(counsel-M-x :which-key "M-x")
+	   "."   '(counsel-find-file :which-key "find files")
+	   ","   '(ivy-switch-buffer :which-key "switch buffers")
+	   "bb"  '(ivy-switch-buffer :which-key "switch buffers")
+	   "bk"  '(kill-this-buffer :which-key "kill buffer")
+	   "wl"  '(windmove-right :which-key "move right")
+	   "wh"  '(windmove-left :which-key "move left")
+	   "wk"  '(windmove-up :which-key "move up")
+	   "wj"  '(windmove-down :which-key "move bottom")
+	   "w/"  '(split-window-right :which-key "split right")
+	   "w-"  '(split-window-below :which-key "split bottom")
+	   "wv"  '(split-window-horizontally :which-key "split horizontally")
+	   "wd"  '(delete-window :which-key "delete window")
+	   "wm"  '(delete-other-windows :which-key "maximize window")
+	   "at"  '(ansi-term :which-key "open terminal")))
+
+;; Helpful
+(use-package helpful
+  :ensure t
+  :defer t)
+
+;; Magit
+(use-package magit
+  :ensure t
+  :commands magit-status
+  :config
+  (general-define-key
+   :states '(normal visual emacs)
+   :prefix "SPC"
+   "g"  '(magit-status :which-key "open magit")))
+(use-package evil-magit
+  :ensure t
+  :defer t
+  :after magit)
 
 ;; Rainbows
 (use-package rainbow-delimiters
@@ -104,33 +129,29 @@
 
 ;; Indent Guide
 (use-package indent-guide
-    :ensure t
-    :defer 2
-    :config (indent-guide-global-mode)) ; on by default
+  :ensure t
+  :defer 2
+  :config (indent-guide-global-mode)) ; on by default
 
 ;; Markdown Mode
 (use-package markdown-mode
-    :ensure t
-    :defer 2
-    :commands (markdown-mode gfm-mode)
-    :mode (("README\\.md\\'" . gfm-mode)
-        ("\\.txt\\'" . markdown-mode)
-        ("\\.md\\'" . markdown-mode)
-        ("\\.markdown\\'" . markdown-mode))
-    :init (setq markdown-command "multimarkdown"))
-
-;; Org Mode
-(use-package org
-  :mode (("\\.org$" . org-mode))
   :ensure t
-  :defer 2)
+  :defer 2
+  :commands (markdown-mode gfm-mode)
+  :mode (("README\\.md\\'" . gfm-mode)
+	 ("\\.txt\\'" . markdown-mode)
+	 ("\\.md\\'" . markdown-mode)
+	 ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
 
 ;; Flycheck
 (use-package flycheck
-    :ensure t
-    :defer 2
-    :config (global-flycheck-mode))
-(add-hook 'after-init-hook #'global-flycheck-mode)
+  :ensure t
+  :defer 2
+  :hook (after-init . global-flycheck-mode)
+  :config (global-flycheck-mode)
+  (setq flycheck-clang-include-path '("../includes" "../inc")
+	flycheck-gcc-include-path flycheck-clang-include-path))
 
 ;; Web Mode
 (use-package web-mode
@@ -153,3 +174,5 @@
   :defer 2
   :ensure t
   :config (golden-ratio-mode 1))
+
+;;; tilde.el ends here
