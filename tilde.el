@@ -19,8 +19,9 @@
 (show-paren-mode       1)
 
 ;; Disable backup files
-(setq make-backup-files nil) ; stop creating backup~ files
-(setq auto-save-default nil) ; stop creating #autosave# files
+(setq make-backup-files nil ; stop creating backup~ files
+	  auto-save-default nil ; stop creating #autosave# files
+	  create-lockfiles nil)
 
 ;; Blank Scratch
 (setq inhibit-startup-message t
@@ -35,6 +36,10 @@
     :init
     (setq-default evil-escape-key-sequence "jk")
     :config (evil-escape-mode 1))
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
 
 ;; Theme
 (use-package doom-themes
@@ -79,9 +84,10 @@
 	   "SPC" '(counsel-M-x :which-key "M-x")
 	   ":"   '(counsel-M-x :which-key "M-x")
 	   "."   '(counsel-find-file :which-key "find files")
-	   ","   '(ivy-switch-buffer :which-key "switch buffers")
+	   ","   '(persp-switch-to-buffer :which-key "switch buffers")
 	   "bb"  '(ivy-switch-buffer :which-key "switch buffers")
-	   "bk"  '(kill-this-buffer :which-key "kill buffer")
+	   "bk"  '((lambda () (interactive) (kill-buffer (current-buffer))) :which-key "kill buffer")
+	   "bK"  '(kill-buffer-and-window :which-key "kill buffer and window")
 	   "wl"  '(windmove-right :which-key "move right")
 	   "wh"  '(windmove-left :which-key "move left")
 	   "wk"  '(windmove-up :which-key "move up")
@@ -149,9 +155,9 @@
   :ensure t
   :defer 2
   :hook (after-init . global-flycheck-mode)
-  :config (global-flycheck-mode)
-  (setq flycheck-clang-include-path '("../includes" "../inc")
-	flycheck-gcc-include-path flycheck-clang-include-path))
+  :config
+  (setq flycheck-clang-include-path '("../include" "../inc" "../../include" "../../inc")
+		flycheck-gcc-include-path flycheck-clang-include-path))
 
 ;; Web Mode
 (use-package web-mode
@@ -166,8 +172,12 @@
 (use-package company
   :defer 2
   :ensure t
+  :bind (:map company-mode-map
+			  ("C-j" . company-select-next)
+			  ("C-k" . company-mode-map))
   :config (company-mode +1)
-  (global-company-mode +1))
+  (global-company-mode +1)
+  (setq company-minimum-prefix-length 2))
 
 ;; Golden Ratio
 (use-package golden-ratio
